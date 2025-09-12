@@ -1,24 +1,43 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { 
   FaTrophy, 
-  FaClock, 
-  FaInbox, 
   FaCheckCircle,
   FaUser 
 } from "react-icons/fa";
 import { useBadges } from "../context/BadgeContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function UserDashboard() {
-  const { incomingBadges, acceptedBadges, handleAcceptBadge, handleRejectBadge, fetchExistingBadges, profile, profileLoading, profileError } = useBadges();
+  const { acceptedBadges, fetchExistingBadges } = useBadges();
+  const { profile, userType, isAuthenticated } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    organization: '',
+    role: '',
+    full_name: ''
+  });
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Show alert with the entered data
+    alert(`Student Entry Submitted!\nEmail: ${formData.email}\nOrganization: ${formData.organization}\nRole: ${formData.role}\nFull Name: ${formData.full_name || 'Not provided'}`);
+  };
 
   useEffect(() => {
     // Fetch only if context is empty; provider already auto-fetches
-    if (incomingBadges.length === 0 && acceptedBadges.length === 0) {
+    if (acceptedBadges.length === 0) {
       fetchExistingBadges();
     }
-  }, [fetchExistingBadges, incomingBadges.length, acceptedBadges.length]);
+  }, [fetchExistingBadges, acceptedBadges.length]);
 
   // Profile is now provided by context
 
@@ -36,24 +55,27 @@ export default function UserDashboard() {
 
           <div className="mt-4 bg-white rounded-lg shadow p-4 flex items-center">
             <div className="h-12 w-12 rounded-full bg-gray-200 overflow-hidden mr-4">
-              {profile?.avatarUrl && (
-                <img src={profile.avatarUrl} alt={profile?.name || "User"} className="h-12 w-12 object-cover" />
-              )}
+              <FaUser className="h-6 w-6 text-gray-500 m-3" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-gray-500">Welcome{profile?.name ? `, ${profile.name}` : ''}</p>
+              <p className="text-sm text-gray-500">
+                Welcome{profile?.name ? `, ${profile.name}` : ' to the Dashboard'}
+              </p>
               <p className="text-base font-medium text-gray-900">
-                {profileLoading ? 'Loading profile…' : profileError ? `Profile: ${profileError}` : `${profile?.role || ''}${profile?.organization ? ` @ ${profile.organization}` : ''}`}
+                {userType === 'user' ? 'Individual User' : userType === 'company' ? 'Company User' : 'User'}
               </p>
               {profile?.email && (
                 <p className="text-xs text-gray-500">{profile.email}</p>
+              )}
+              {!profile && (
+                <p className="text-xs text-red-500">Profile data loading...</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -65,73 +87,81 @@ export default function UserDashboard() {
               </div>
             </div>
           </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <FaClock className="h-6 w-6 text-yellow-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">{incomingBadges.length}</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Incoming Badges Section */}
+          {/* Student Entry Form */}
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">
-                Incoming Badges ({incomingBadges.length})
+                Add Student Entry
               </h3>
-              <p className="text-sm text-gray-500">Badges waiting for your approval</p>
+              <p className="text-sm text-gray-500">Enter student information</p>
             </div>
             <div className="p-6">
-              {incomingBadges.length === 0 ? (
-                <div className="text-center py-8">
-                  <FaInbox className="mx-auto h-12 w-12 text-gray-400" />
-                  <p className="mt-2 text-sm text-gray-500">No incoming badges</p>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Associated Email*
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="alice@uni.com"
+                  />
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {incomingBadges.map(badge => (
-                    <div key={badge.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <FaUser/>
-                            <div>
-                              <h4 className="text-sm font-medium text-gray-900">{badge.title}</h4>
-                              <p className="text-xs text-gray-500">by {badge.organization || badge.issuer}</p>
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-600 mb-2">{badge.description}</p>
-                          <div className="flex items-center space-x-4 text-xs text-gray-500">
-                            {badge.category && <span>Category: {badge.category}</span>}
-                            {badge.date && <span>Date: {badge.date}</span>}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex space-x-2 mt-4">
-                        <button
-                          onClick={() => handleAcceptBadge(badge.id)}
-                          className="flex-1 bg-green-600 text-white px-3 py-2 text-sm font-medium rounded-md hover:bg-green-700 transition-colors"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => handleRejectBadge(badge.id)}
-                          className="flex-1 bg-gray-300 text-gray-700 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-400 transition-colors"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Organization *
+                  </label>
+                  <input
+                    type="text"
+                    name="organization"
+                    value={formData.organization}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Company Y"
+                  />
                 </div>
-              )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Role *
+                  </label>
+                  <input
+                    type="text"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Software Engineer Intern"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name (optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="full_name"
+                    value={formData.full_name}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Alice"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow"
+                >
+                  Submit
+                </button>
+              </form>
             </div>
           </div>
 

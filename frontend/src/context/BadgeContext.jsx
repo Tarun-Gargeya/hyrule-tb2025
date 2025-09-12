@@ -7,9 +7,6 @@ export const BadgeProvider = ({ children }) => {
   const [acceptedBadges, setAcceptedBadges] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [profileLoading, setProfileLoading] = useState(false);
-  const [profileError, setProfileError] = useState(null);
 
   const handleAcceptBadge = useCallback((badgeId) => {
     const badge = incomingBadges.find((b) => b.id === badgeId);
@@ -74,20 +71,6 @@ export const BadgeProvider = ({ children }) => {
   // Auto-fetch once on provider mount to ensure frontend depends on backend placeholder
   useEffect(() => {
     fetchExistingBadges();
-    (async () => {
-      try {
-        setProfileLoading(true);
-        setProfileError(null);
-        const res = await fetch("http://localhost:3001/profile");
-        if (!res.ok) throw new Error(`Failed to fetch profile: ${res.status}`);
-        const data = await res.json();
-        setProfile(data);
-      } catch (e) {
-        setProfileError(e.message || "Unknown error");
-      } finally {
-        setProfileLoading(false);
-      }
-    })();
   }, [fetchExistingBadges]);
 
   const value = useMemo(() => ({
@@ -95,27 +78,10 @@ export const BadgeProvider = ({ children }) => {
     acceptedBadges,
     loading,
     error,
-    profile,
-    profileLoading,
-    profileError,
     handleAcceptBadge,
     handleRejectBadge,
     fetchExistingBadges,
-    fetchProfile: async () => {
-      try {
-        setProfileLoading(true);
-        setProfileError(null);
-        const res = await fetch("http://localhost:3001/profile");
-        if (!res.ok) throw new Error(`Failed to fetch profile: ${res.status}`);
-        const data = await res.json();
-        setProfile(data);
-      } catch (e) {
-        setProfileError(e.message || "Unknown error");
-      } finally {
-        setProfileLoading(false);
-      }
-    },
-  }), [incomingBadges, acceptedBadges, loading, error, profile, profileLoading, profileError, handleAcceptBadge, handleRejectBadge, fetchExistingBadges]);
+  }), [incomingBadges, acceptedBadges, loading, error, handleAcceptBadge, handleRejectBadge, fetchExistingBadges]);
 
   return <BadgeContext.Provider value={value}>{children}</BadgeContext.Provider>;
 };

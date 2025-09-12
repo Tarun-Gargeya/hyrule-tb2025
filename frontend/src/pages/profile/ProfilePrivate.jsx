@@ -1,39 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { useBadges } from '../../context/BadgeContext';
+import { useAuth } from '../../context/AuthContext';
+import Navbar from '../../components/layout/Navbar';
 import { FaSave, FaUserCircle, FaBuilding, FaEnvelope, FaBriefcase, FaImage } from 'react-icons/fa';
 
-export default function ProfilePrivate() {
-  const { profile, profileLoading } = useBadges();
+export default function ProfilePrivate({ profileData }) {
+  const { profile, loading } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', role: '', organization: '', avatarUrl: '' });
+  
+  // Use profileData prop if provided, otherwise fall back to auth context
+  const displayProfile = profileData || profile;
 
   useEffect(() => {
-    if (profile) {
+    if (displayProfile) {
       setForm({
-        name: profile.name || '',
-        email: profile.email || '',
-        role: profile.role || '',
-        organization: profile.organization || '',
-        avatarUrl: profile.avatarUrl || '',
+        name: displayProfile.name || '',
+        email: displayProfile.email || '',
+        role: displayProfile.role || '',
+        organization: displayProfile.organization || displayProfile.domain || '',
+        avatarUrl: displayProfile.avatarUrl || '',
       });
     }
-  }, [profile]);
+  }, [displayProfile]);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-1">
-        <div className="bg-white border rounded-lg p-6">
-          <div className="flex items-center space-x-4">
-            {form.avatarUrl ? (
-              <img src={form.avatarUrl} alt={form.name || 'Avatar'} className="h-16 w-16 rounded-full object-cover ring-2 ring-blue-500" />
-            ) : (
-              <FaUserCircle className="h-16 w-16 text-gray-300" />
-            )}
-            <div>
-              <p className="text-lg font-semibold text-gray-900">{form.name || 'Your Name'}</p>
-              <p className="text-sm text-gray-500">{form.role || 'Your Role'} {form.organization ? `@ ${form.organization}` : ''}</p>
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <div className="bg-white border rounded-lg p-6">
+              <div className="flex items-center space-x-4">
+                {form.avatarUrl ? (
+                  <img src={form.avatarUrl} alt={form.name || 'Avatar'} className="h-16 w-16 rounded-full object-cover ring-2 ring-blue-500" />
+                ) : (
+                  <FaUserCircle className="h-16 w-16 text-gray-300" />
+                )}
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">{form.name || 'Your Name'}</p>
+                  <p className="text-sm text-gray-500">{form.role || 'Your Role'} {form.organization ? `@ ${form.organization}` : ''}</p>
+                </div>
           </div>
         </div>
       </div>
@@ -79,6 +86,8 @@ export default function ProfilePrivate() {
             </button>
           </div>
         </form>
+      </div>
+        </div>
       </div>
     </div>
   );

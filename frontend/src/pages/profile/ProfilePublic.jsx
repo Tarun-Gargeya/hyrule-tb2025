@@ -3,11 +3,15 @@ import { useBadges } from '../../context/BadgeContext';
 import Navbar from '../../components/layout/Navbar';
 import { getCategoryColor } from '../../utils/badgeUtils';
 
-export default function ProfilePublic() {
-  const { profile, acceptedBadges } = useBadges();
+export default function ProfilePublic({ profileData }) {
+  const { acceptedBadges } = useBadges();
+  
+  // Use profileData prop for the public view
+  const profile = profileData;
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="flex items-center">

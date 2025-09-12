@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Building2, Mail, Lock, Globe, Briefcase, Upload, Camera } from 'lucide-react';
-import { supabase } from '../utils/supabase';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
+
 const Auth = ({ onLogin, onSignup }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, signup, loading: authLoading, error: authError } = useAuth();
+  
+  // Get the intended destination from location state
+  const from = location.state?.from?.pathname || null;
   const [activeTab, setActiveTab] = useState('login');
   const [userType, setUserType] = useState('user');
   const [showPassword, setShowPassword] = useState(false);
@@ -86,110 +92,57 @@ const Auth = ({ onLogin, onSignup }) => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
-  setLoading(true);
+    e.preventDefault();
+    if (!validateForm()) return;
+    
+    setLoading(true);
+    setErrors({});
 
-  try {
-    if (activeTab === 'login') {
-      // 🔑 LOGIN FLOW
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: loginData.email,
-        password: loginData.password,
-      });
-      if (error) throw error;
-
-      const userId = data.user.id;
-
-      // Try to find user in companies table first
-      const { data: companyProfile, error: companyError } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      console.log(companyProfile, companyError);
-      if (companyProfile) {
-        // User is a company, navigate to company dashboard
-        navigate('/company-dashboard');
-      } else {
-        // Try users table
-        const { data: userProfile, error: userError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', userId)
-          .single();
-
-        if (userError || !userProfile) {
-          throw new Error('Profile not found in either users or companies table');
-        }
+    try {
+      if (activeTab === 'login') {
+        // 🔑 LOGIN FLOW
+        const result = await login(loginData.email, loginData.password);
         
-        // User is an individual, navigate to user dashboard
-        navigate('/user-dashboard');
-      }
-
-    } else {
-      // 📝 SIGNUP FLOW
-
-      // Check if email already exists in the appropriate table
-      const tableName = userType === 'company' ? 'companies' : 'users';
-      let { data: existingUser, error } = await supabase
-        .from(tableName)
-        .select('id')
-        .eq('email_id', signupData.email)
-        .maybeSingle(); // <-- avoids 406 if no row exists
-
-      if (error) throw error; // real errors like network/auth
-      if (existingUser) {
-        setErrors({ email: 'Email already exists' });
-        setLoading(false);
-        return;
-      }
-
-      // Create account in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: signupData.email,
-        password: signupData.password,
-      });
-      if (authError) throw authError;
-
-      const userId = authData.user.id;
-
-      // Insert into correct table based on selected type
-      const { error: insertError } =
-        userType === 'company'
-          ? await supabase.from('companies').insert([
-              {
-                id: userId,
-                c_name: signupData.companyName,
-                email_id: signupData.email,
-                domain: signupData.industry || null,
-                website: signupData.website || null,
-                cin: signupData.cin,
-              },
-            ])
-          : await supabase.from('users').insert([
-            {
-              id: userId,
-              full_name: signupData.fullName,
-              email_id: signupData.email,
-            },
-          ]);
-      if (insertError) throw insertError;
-
-      // Navigate based on selected type after signup
-      if (userType === 'company') {
-        navigate('/company-dashboard');
+        // Navigate to intended destination or default dashboard
+        if (from) {
+          console.log('🎯 Redirecting to intended destination:', from);
+          navigate(from, { replace: true });
+        } else {
+          // Navigate based on user type
+          if (result.userType === 'company') {
+            navigate('/company-dashboard');
+          } else {
+            navigate('/user-dashboard');
+          }
+        }
       } else {
-        navigate('/user-dashboard');
+        // 📝 SIGNUP FLOW
+        const result = await signup(signupData, userType);
+        
+        // Navigate to intended destination or default dashboard
+        if (from) {
+          console.log('🎯 Redirecting to intended destination:', from);
+          navigate(from, { replace: true });
+        } else {
+          // Navigate based on selected type after signup
+          if (result.userType === 'company') {
+            navigate('/company-dashboard');
+          } else {
+            navigate('/user-dashboard');
+          }
+        }
       }
+    } catch (err) {
+      console.error(err);
+      if (err.message.includes('Email already exists')) {
+        setErrors({ email: 'Email already exists' });
+      } else {
+        setErrors({ general: err.message || 'Something went wrong' });
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-    alert(err.message || 'Something went wrong');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   const resetForm = () => {
@@ -226,6 +179,13 @@ const Auth = ({ onLogin, onSignup }) => {
             <p className="text-blue-100 text-center mt-1">
               {activeTab === 'login' ? 'Sign in to your account' : 'Create your account'}
             </p>
+            {from && (
+              <div className="mt-3 text-center">
+                <p className="text-xs text-blue-200">
+                  You'll be redirected to: <span className="font-medium">{from}</span>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Tab Navigation */}
@@ -563,6 +523,13 @@ const Auth = ({ onLogin, onSignup }) => {
                   {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
                 </div>
               </>
+            )}
+
+            {/* General Error Display */}
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-700 text-sm">{errors.general}</p>
+              </div>
             )}
 
             {/* Submit Button */}
