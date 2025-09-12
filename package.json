@@ -1,21 +1,16 @@
 {
-  "name": "hyrule-tb2025",
+  "name": "hyrulerevamp",
   "version": "1.0.0",
-  "description": "Repo for techbiz 2025",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Tarun-Gargeya/hyrule-tb2025.git"
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run start --prefix backend\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Tarun-Gargeya/hyrule-tb2025/issues"
-  },
-  "homepage": "https://github.com/Tarun-Gargeya/hyrule-tb2025#readme"
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }
