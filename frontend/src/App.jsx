@@ -4,6 +4,8 @@ import CompanyDashboard from './pages/CompanyDashboard';
 import UserDashboard from './pages/UserDashboard';
 import MyBadges from './pages/MyBadges';
 import Home from './pages/Home';
+import Homesmt from './pages/Homesmt';
+import Auth from './pages/Auth';
 import ProfileLayout from './pages/profile/ProfileLayout';
 import ProfilePrivate from './pages/profile/ProfilePrivate';
 import ProfilePublic from './pages/profile/ProfilePublic';
@@ -13,7 +15,9 @@ function App(){
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Homesmt />} />
+        <Route path="/landing" element={<Homesmt />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/company-dashboard" element={<CompanyDashboard />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/my-badges" element={<MyBadges />} />

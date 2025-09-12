@@ -26,6 +26,16 @@ export default function Navbar() {
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
             <Link 
+              to="/landing" 
+              className={`px-3 py-2 text-sm font-medium ${
+                isActive("/landing") 
+                  ? "text-gray-700 border-b-2 border-blue-500" 
+                  : "text-gray-500 hover:text-blue-600"
+              }`}
+            >
+              Home
+            </Link>
+            <Link 
               to="/user-dashboard" 
               className={`px-3 py-2 text-sm font-medium ${
                 isActive("/user-dashboard") 
@@ -54,6 +64,16 @@ export default function Navbar() {
               }`}
             >
               Profile
+            </Link>
+            <Link 
+              to="/auth" 
+              className={`px-3 py-2 text-sm font-medium ${
+                isActive("/auth") 
+                  ? "text-gray-700 border-b-2 border-blue-500" 
+                  : "text-gray-500 hover:text-blue-600"
+              }`}
+            >
+              Sign In
             </Link>
           </div>
 
