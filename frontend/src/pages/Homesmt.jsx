@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import LandingNavbar from '../components/layout/LandingNavbar';
+// import LandingNavbar from '../components/layout/LandingNavbar';
 import { 
   ArrowRight, 
   Shield, 
@@ -69,7 +69,7 @@ const Homesmt = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <LandingNavbar />
+  {/* <LandingNavbar /> */}
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-16 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
