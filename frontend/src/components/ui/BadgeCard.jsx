@@ -10,11 +10,11 @@ export default function BadgeCard({ badge, onAccept, onReject, showActions = fal
         <div className="flex-1">
           <div className="flex items-center space-x-3 mb-2">
             {badge.issuerAvatar && (
-              <img src={badge.issuerAvatar} alt={badge.issuer} className="h-8 w-8 rounded-full" />
+              <img src={badge.issuerAvatar} alt={badge.issuer || badge.organization} className="h-8 w-8 rounded-full" />
             )}
             <div>
               <h4 className="text-sm font-medium text-gray-900">{badge.title}</h4>
-              <p className="text-xs text-gray-500">by {badge.issuer}</p>
+              <p className="text-xs text-gray-500">by {badge.organization || badge.issuer}</p>
             </div>
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(badge.category)}`}>
               {badge.category}

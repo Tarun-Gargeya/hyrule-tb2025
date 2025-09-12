@@ -1,0 +1,14 @@
+{
+  "id": "user_123",
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "role": "Software Engineer",
+  "organization": "Engineering",
+  "avatarUrl": "https://i.pravatar.cc/100?img=3",
+  "joinedAt": "2024-03-12T00:00:00.000Z",
+  "stats": {
+    "totalBadges": 12,
+    "pendingBadges": 3,
+    "categories": 5
+  }
+}

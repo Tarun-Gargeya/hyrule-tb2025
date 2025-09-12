@@ -1,6 +1,5 @@
 const express = require("express");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -11,19 +10,7 @@ app.use(express.json());
 // In-memory store (resets when server restarts)
 let badges = [];
 
-// Email setup (Nodemailer)
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
+// Email removed: no transporter configuration
 
 // Route: Company creates badge
 app.post("/createBadge", async (req, res) => {
@@ -55,41 +42,11 @@ app.post("/createBadge", async (req, res) => {
     // claim link
     const claimLink = `http://localhost:3001/claim/${token}`;
 
-    // Send email to student
-    try {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: studentEmail,
-        subject: `Badge Verification from ${company}`,
-        html: `
-          <h2>Badge Verification</h2>
-          <p>Hello ${name},</p>
-          <p>Congratulations! ${company} has created a professional badge for you.</p>
-          <p><strong>Position:</strong> ${position}</p>
-          <p>Please click the link below to claim and verify your badge:</p>
-          <p><a href="${claimLink}" style="background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px;">Claim Your Badge</a></p>
-          <p>Or copy and paste this link in your browser: ${claimLink}</p>
-          <p>Best regards,<br>Badge Verification System</p>
-        `
-      };
-
-      await transporter.sendMail(mailOptions);
-      console.log(`Email sent successfully to ${studentEmail}`);
-      
-      res.status(201).json({ 
-        message: "Badge created and email sent successfully!", 
-        claimLink,
-        emailSent: true
-      });
-    } catch (emailError) {
-      console.error("Email sending failed:", emailError);
-      res.status(201).json({ 
-        message: "Badge created but email sending failed", 
-        claimLink,
-        emailSent: false,
-        emailError: emailError.message
-      });
-    }
+    // Email sending removed; just return the claim link
+    res.status(201).json({ 
+      message: "Badge created",
+      claimLink
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error creating badge" });
@@ -124,24 +81,35 @@ app.get("/claim/:token", (req, res) => {
   });
 });
 
-// Debug route: list all badges (remove in production!)
+// Mock route: list badges from static JSON (placeholder backend)
+const fs = require("fs");
+const path = require("path");
 app.get("/badges", (req, res) => {
-  res.json(badges);
-});
-
-// Test email configuration
-app.get("/test-email", async (req, res) => {
   try {
-    await transporter.verify();
-    res.json({ message: "Email configuration is working!", emailUser: process.env.EMAIL_USER });
-  } catch (error) {
-    res.status(500).json({ 
-      message: "Email configuration failed", 
-      error: error.message,
-      emailUser: process.env.EMAIL_USER 
-    });
+    const filePath = path.join(__dirname, "mock-badges.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const list = JSON.parse(raw);
+    res.json(list);
+  } catch (e) {
+    console.error("Failed to load mock badges:", e);
+    res.status(500).json({ message: "Failed to load mock badges" });
   }
 });
+
+// Mock route: user profile placeholder
+app.get("/profile", (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "mock-profile.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const profile = JSON.parse(raw);
+    res.json(profile);
+  } catch (e) {
+    console.error("Failed to load mock profile:", e);
+    res.status(500).json({ message: "Failed to load mock profile" });
+  }
+});
+
+// Email endpoints removed
 
 // Start server
 const PORT = process.env.PORT || 3001;

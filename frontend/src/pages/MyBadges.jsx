@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { 
@@ -15,80 +15,26 @@ import {
   FaBrain,
   FaUsers
 } from "react-icons/fa";
+import { useBadges } from "../context/BadgeContext";
 
 export default function MyBadges() {
-  // Sample badge data - in real app this would come from API
-  const [badges] = useState([
-    {
-      id: 101,
-      title: "Quick Learner",
-      description: "Mastered new technology in record time",
-      issuer: "Senior Developer",
-      category: "Learning",
-      dateAccepted: "2025-09-05",
-      skills: ["React", "JavaScript", "Problem Solving"]
-    },
-    {
-      id: 102,
-      title: "Code Quality Expert",
-      description: "Consistently delivers high-quality code with excellent test coverage and documentation",
-      issuer: "Tech Lead",
-      category: "Technical Excellence",
-      dateAccepted: "2025-09-01",
-      skills: ["Clean Code", "Testing", "Documentation"]
-    },
-    {
-      id: 103,
-      title: "Mentor",
-      description: "Outstanding mentorship to junior developers, helping them grow and succeed",
-      issuer: "HR Team",
-      category: "Leadership",
-      dateAccepted: "2025-08-28",
-      skills: ["Leadership", "Communication", "Teaching"]
-    },
-    {
-      id: 104,
-      title: "Customer Focus",
-      description: "Exceptional customer service and support, always putting customers first",
-      issuer: "Customer Success",
-      category: "Customer Service",
-      dateAccepted: "2025-08-25",
-      skills: ["Customer Service", "Communication", "Problem Solving"]
-    },
-    {
-      id: 105,
-      title: "Innovation Champion",
-      description: "Proposed and implemented innovative solutions that improved efficiency",
-      issuer: "Innovation Team",
-      category: "Innovation",
-      dateAccepted: "2025-08-20",
-      skills: ["Innovation", "Creative Thinking", "Process Improvement"]
-    },
-    {
-      id: 106,
-      title: "Team Player",
-      description: "Excellent collaboration and team spirit in cross-functional projects",
-      issuer: "Project Manager",
-      category: "Collaboration",
-      dateAccepted: "2025-08-15",
-      skills: ["Teamwork", "Collaboration", "Communication"]
-    }
-  ]);
+  const { acceptedBadges: badges } = useBadges();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // Get unique categories
-  const categories = ["All", ...new Set(badges.map(badge => badge.category))];
+  const categories = useMemo(() => ["All", ...new Set((badges || []).map(badge => badge.category).filter(Boolean))], [badges]);
 
-  // Filter badges based on search and category
-  const filteredBadges = badges.filter(badge => {
-    const matchesSearch = badge.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         badge.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         badge.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredBadges = useMemo(() => (badges || []).filter(badge => {
+    const search = searchTerm.toLowerCase();
+    const matchesSearch = (badge.title || "").toLowerCase().includes(search) ||
+                         (badge.description || "").toLowerCase().includes(search) ||
+                         (badge.skills || []).some(skill => (skill || "").toLowerCase().includes(search)) ||
+                         (badge.organization || "").toLowerCase().includes(search) ||
+                         (badge.issuer || "").toLowerCase().includes(search);
     const matchesCategory = selectedCategory === "All" || badge.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  });
+  }), [badges, searchTerm, selectedCategory]);
 
   const getBadgeIcon = (category) => {
     const icons = {
@@ -136,7 +82,7 @@ export default function MyBadges() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Badges</p>
-                <p className="text-2xl font-bold text-gray-900">{badges.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{(badges || []).length}</p>
               </div>
             </div>
           </div>
@@ -148,7 +94,7 @@ export default function MyBadges() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Categories</p>
-                <p className="text-2xl font-bold text-gray-900">{categories.length - 1}</p>
+                <p className="text-2xl font-bold text-gray-900">{Math.max(categories.length - 1, 0)}</p>
               </div>
             </div>
           </div>
@@ -160,7 +106,7 @@ export default function MyBadges() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Skills Earned</p>
-                <p className="text-2xl font-bold text-gray-900">{new Set(badges.flatMap(b => b.skills)).size}</p>
+                <p className="text-2xl font-bold text-gray-900">{new Set((badges || []).flatMap(b => b.skills || [])).size}</p>
               </div>
             </div>
           </div>
@@ -225,7 +171,7 @@ export default function MyBadges() {
                     {React.createElement(getBadgeIcon(badge.category), { className: "w-8 h-8" })}
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(badge.category)} bg-white`}>
-                    {badge.category}
+                    {badge.category || 'General'}
                   </span>
                 </div>
                 <h3 className="text-lg font-bold mt-2">{badge.title}</h3>
@@ -239,7 +185,7 @@ export default function MyBadges() {
                 <div className="mb-4">
                   <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
                   <div className="flex flex-wrap gap-2">
-                    {badge.skills.map((skill, index) => (
+                    {(badge.skills || []).map((skill, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
@@ -253,7 +199,7 @@ export default function MyBadges() {
                 {/* Badge Footer */}
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>Issued by {badge.issuer}</span>
+                    <span>Issued by {badge.organization || badge.issuer}</span>
                     <span>{badge.dateAccepted}</span>
                   </div>
                 </div>

@@ -37,10 +37,13 @@ export const getCategoryColor = (category) => {
 // Filter badges based on search term and category
 export const filterBadges = (badges, searchTerm, selectedCategory) => {
   return badges.filter(badge => {
-    const matchesSearch = badge.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         badge.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const term = (searchTerm || '').toLowerCase();
+    const matchesSearch = (badge.title || '').toLowerCase().includes(term) ||
+                         (badge.description || '').toLowerCase().includes(term) ||
+                         (badge.organization || '').toLowerCase().includes(term) ||
+                         (badge.issuer || '').toLowerCase().includes(term) ||
                          (badge.skills && badge.skills.some(skill => 
-                           skill.toLowerCase().includes(searchTerm.toLowerCase())
+                           (skill || '').toLowerCase().includes(term)
                          ));
     const matchesCategory = selectedCategory === "All" || badge.category === selectedCategory;
     return matchesSearch && matchesCategory;

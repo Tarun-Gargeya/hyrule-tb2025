@@ -4,7 +4,7 @@ export { default as StatsCard } from './ui/StatsCard';
 export { default as Navbar } from './layout/Navbar';
 
 // Hooks
-export { useBadgeManager } from '../hooks/useBadgeManager';
+// centralized via context now; no export for useBadgeManager
 
 // Utils
 export * from '../utils/badgeUtils';
