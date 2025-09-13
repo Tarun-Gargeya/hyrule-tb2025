@@ -1,116 +1,272 @@
+// POST /api/register
+// Body: { email_id, name, ... }
+app.post("/api/register", async (req, res) => {
+  const { email_id, name, ...rest } = req.body;
+  if (!email_id || !name) {
+    return res.status(400).json({ error: "email_id and name required" });
+  }
+  // 1. Insert user
+  const { data: user, error: userError } = await supabase
+    .from("users")
+    .insert([
+      { email_id, name, ...rest }
+    ])
+    .select()
+    .single();
+  if (userError || !user) {
+    return res.status(500).json({ error: userError?.message || "User creation failed" });
+  }
+  // 2. Check for existing welcome badge
+  const { data: existing, error: existError } = await supabase
+    .from("badges")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("title", "Welcome Badge")
+    .eq("category", "welcome")
+    .eq("organization", "hyrule-tb2025")
+    .eq("role", "Newcomer")
+    .maybeSingle();
+  if (existError) {
+    return res.status(500).json({ error: existError.message, user });
+  }
+  if (existing) {
+    return res.json({ success: true, user, badge: null, message: "Welcome badge already exists for this user." });
+  }
+  // 3. Insert welcome badge
+  const { data: badge, error: badgeError } = await supabase
+    .from("badges")
+    .insert([
+      {
+        user_id: user.id,
+        title: "Welcome Badge",
+        description: "Awarded for joining the platform!",
+        organization: "hyrule-tb2025",
+        role: "Newcomer",
+        issued_at: new Date().toISOString(),
+        category: "welcome"
+      },
+    ])
+    .select()
+    .single();
+  if (badgeError) {
+    return res.status(500).json({ error: badgeError.message, user });
+  }
+  res.json({ success: true, user, badge });
+});
+// POST /api/welcome-badge
+// Body: { userId }
+app.post("/api/welcome-badge", async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) {
+    return res.status(400).json({ error: "userId required" });
+  }
+  // Fetch user email (optional, for logging)
+  const { data: user, error: userError } = await supabase
+    .from("users")
+    .select("email_id")
+    .eq("id", userId)
+    .single();
+  if (userError || !user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+  // Check for existing welcome badge
+  const { data: existing, error: existError } = await supabase
+    .from("badges")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("title", "Welcome Badge")
+    .eq("category", "welcome")
+    .eq("organization", "hyrule-tb2025")
+    .eq("role", "Newcomer")
+    .maybeSingle();
+  if (existError) {
+    return res.status(500).json({ error: existError.message });
+  }
+  if (existing) {
+    return res.status(409).json({ error: "Welcome badge already exists for this user." });
+  }
+  // Insert welcome badge
+  const { data: badge, error: badgeError } = await supabase
+    .from("badges")
+    .insert([
+      {
+        user_id: userId,
+        title: "Welcome Badge",
+        description: "Awarded for joining the platform!",
+        organization: "hyrule-tb2025",
+        role: "Newcomer",
+        issued_at: new Date().toISOString(),
+        category: "welcome"
+      },
+    ])
+    .select();
+  if (badgeError) {
+    return res.status(500).json({ error: badgeError.message });
+  }
+  res.json({ success: true, badge: badge && badge[0] });
+});
+
+
 const express = require("express");
-const crypto = require("crypto");
 const cors = require("cors");
+const axios = require("axios");
+const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// In-memory store (resets when server restarts)
-let badges = [];
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY; // Service role key
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Email removed: no transporter configuration
-
-// Route: Company creates badge
-app.post("/createBadge", async (req, res) => {
+// POST /api/verify-student
+// Body: { studentId, companyId, organization, role, title, description, category }
+app.post("/api/verify-student", async (req, res) => {
+  const { studentId, companyId, organization, role, title, description, category } = req.body;
+  if (!studentId || !companyId || !organization || !role) {
+    return res.status(400).json({ error: "studentId, companyId, organization, and role required" });
+  }
+  // 1. Fetch student email from users table
+  const { data: user, error: userError } = await supabase
+    .from("users")
+    .select("email_id")
+    .eq("id", studentId)
+    .single();
+  if (userError || !user) {
+    return res.status(404).json({ error: "Student not found" });
+  }
+  const studentEmail = user.email_id;
+  // 2. Call company-backend for verification
   try {
-    console.log("Received request body:", req.body);
-    const { company, studentEmail, name, position } = req.body;
-
-    if (!company || !studentEmail || !name || !position) {
-      return res.status(400).json({ 
-        message: "Missing required fields: company, studentEmail, name, position" 
-      });
-    }
-
-    // generate claim token
-    const token = crypto.randomBytes(16).toString("hex");
-
-    // save badge in memory
-    const badge = {
-      id: badges.length + 1,
-      company,
-      studentEmail,
-      name,
-      position,
-      status: "pending", // pending → verified
-      claimToken: token,
-    };
-    badges.push(badge);
-
-    // claim link
-    const claimLink = `http://localhost:3001/claim/${token}`;
-
-    // Email sending removed; just return the claim link
-    res.status(201).json({ 
-      message: "Badge created",
-      claimLink
+    const verifyRes = await axios.post("http://localhost:6000/api/verify", {
+      email: studentEmail,
+      studentId,
+      organization,
+      role,
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error creating badge" });
-  }
-});
-
-// Route: Student claims badge
-app.get("/claim/:token", (req, res) => {
-  const { token } = req.params;
-  
-  const badge = badges.find(b => b.claimToken === token);
-  if (!badge) {
-    return res.status(404).json({ message: "Invalid or expired claim token" });
-  }
-  
-  if (badge.status === "verified") {
-    return res.json({ message: "Badge already verified", badge });
-  }
-  
-  badge.status = "verified";
-  badge.verifiedAt = new Date().toISOString();
-  
-  res.json({ 
-    message: "Badge successfully verified!", 
-    badge: {
-      company: badge.company,
-      name: badge.name,
-      position: badge.position,
-      status: badge.status,
-      verifiedAt: badge.verifiedAt
+    if (verifyRes.data.verified) {
+      // 3. Check for existing badge (robust)
+      const { data: existing, error: existError } = await supabase
+        .from("badges")
+        .select("id")
+        .eq("user_id", studentId)
+        .eq("organization", organization)
+        .eq("role", role)
+        .eq("title", title || `${role} at ${organization}`)
+        .eq("category", category || "Work Experience")
+        .maybeSingle();
+      if (existError) {
+        return res.status(500).json({ error: existError.message });
+      }
+      if (existing) {
+        return res.status(409).json({ error: "Badge already exists for this user, organization, role, title, and category." });
+      }
+      // 4. Insert badge if not exists
+      const { data: badge, error: badgeError } = await supabase
+        .from("badges")
+        .insert([
+          {
+            user_id: studentId,
+            title: title || `${role} at ${organization}`,
+            description: description || "",
+            issuer: organization,
+            organization,
+            role,
+            category: category || "Work Experience",
+            status: "verified",
+            verified_at: new Date().toISOString(),
+          },
+        ])
+        .select()
+        .single();
+      if (badgeError) {
+        return res.status(500).json({ error: "Badge creation failed", details: badgeError.message });
+      }
+      return res.json({ verified: true, badge });
+    } else {
+      return res.json({ verified: false });
     }
-  });
-});
-
-// Mock route: list badges from static JSON (placeholder backend)
-const fs = require("fs");
-const path = require("path");
-app.get("/badges", (req, res) => {
-  try {
-    const filePath = path.join(__dirname, "mock-badges.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const list = JSON.parse(raw);
-    res.json(list);
-  } catch (e) {
-    console.error("Failed to load mock badges:", e);
-    res.status(500).json({ message: "Failed to load mock badges" });
+  } catch (err) {
+    return res.status(500).json({ error: "Company verification failed", details: err.message });
   }
 });
 
-// Mock route: user profile placeholder
-app.get("/profile", (req, res) => {
+// GET /badges?user_id=...
+app.get("/badges", async (req, res) => {
+  const { user_id } = req.query;
+  if (!user_id) return res.status(400).json({ error: "user_id required" });
   try {
-    const filePath = path.join(__dirname, "mock-profile.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const profile = JSON.parse(raw);
-    res.json(profile);
-  } catch (e) {
-    console.error("Failed to load mock profile:", e);
-    res.status(500).json({ message: "Failed to load mock profile" });
+    let { data, error } = await supabase
+      .from("badges")
+      .select("*")
+      .eq("user_id", user_id)
+      .order("createdAt", { ascending: false });
+    if (error) {
+      console.error("Supabase error in /badges:", error);
+      return res.status(500).json({ error: error.message, details: error });
+    }
+    // If no badges, add welcome badge
+    if (!data || data.length === 0) {
+      // Check for user existence
+      const { data: user, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", user_id)
+        .single();
+      if (userError || !user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      // Check for existing welcome badge (shouldn't exist, but for safety)
+      const { data: existing, error: existError } = await supabase
+        .from("badges")
+        .select("id")
+        .eq("user_id", user_id)
+        .eq("title", "Welcome Badge")
+        .eq("category", "welcome")
+        .eq("organization", "hyrule-tb2025")
+        .eq("role", "Newcomer")
+        .maybeSingle();
+      if (existError) {
+        return res.status(500).json({ error: existError.message });
+      }
+      if (!existing) {
+        const { data: badge, error: badgeError } = await supabase
+          .from("badges")
+          .insert([
+            {
+              user_id: user_id,
+              title: "Welcome Badge",
+              description: "Awarded for joining the platform!",
+              organization: "hyrule-tb2025",
+              role: "Newcomer",
+              issued_at: new Date().toISOString(),
+              category: "welcome"
+            },
+          ])
+          .select()
+          .single();
+        if (badgeError) {
+          return res.status(500).json({ error: badgeError.message });
+        }
+        data = [badge];
+      } else {
+        // If somehow welcome badge exists but not in data, fetch it
+        const { data: badge } = await supabase
+          .from("badges")
+          .select("*")
+          .eq("id", existing.id)
+          .single();
+        data = badge ? [badge] : [];
+      }
+    }
+    return res.json(data);
+  } catch (err) {
+    console.error("Exception in /badges:", err);
+    return res.status(500).json({ error: err.message, details: err });
   }
 });
 
-// Email endpoints removed
-
-// Start server
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

@@ -63,13 +63,13 @@ function AppWrapper() {
 
 function App(){
   return (
-    <AuthProvider>
-      <BadgeProvider>
-        <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <BadgeProvider>
           <AppWrapper />
-        </BrowserRouter>
-      </BadgeProvider>
-    </AuthProvider>
+        </BadgeProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 export default App

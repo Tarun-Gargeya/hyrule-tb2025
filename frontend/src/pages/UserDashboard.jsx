@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import CompanySelect from "../components/ui/CompanySelect";
 import { Link } from "react-router-dom";
 // import Navbar from "../components/layout/Navbar";
 import { 
@@ -26,10 +28,42 @@ export default function UserDashboard() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [verification, setVerification] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Show alert with the entered data
-    alert(`Student Entry Submitted!\nEmail: ${formData.email}\nOrganization: ${formData.organization}\nRole: ${formData.role}\nFull Name: ${formData.full_name || 'Not provided'}`);
+    setLoading(true);
+    setError(null);
+    setVerification(null);
+    try {
+      // Get user id from context or localStorage
+      const user = JSON.parse(localStorage.getItem('auth_user'));
+      const studentId = user?.id;
+      if (!studentId) {
+        setError('User not logged in');
+        setLoading(false);
+        return;
+      }
+      const res = await axios.post('http://localhost:3001/api/verify-student', {
+        studentId,
+        companyId: formData.organization,
+        organization: formData.organization,
+        role: formData.role,
+        title: formData.role,
+        description: `${formData.role} badge`,
+        category: 'Work Experience',
+      });
+      setVerification(res.data.verified);
+      if (res.data.verified) {
+        await fetchExistingBadges();
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || 'Verification failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -118,14 +152,10 @@ export default function UserDashboard() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Organization *
                   </label>
-                  <input
-                    type="text"
-                    name="organization"
+                  <CompanySelect
                     value={formData.organization}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Company Y"
+                    onChange={org => setFormData(f => ({ ...f, organization: org }))}
+                    placeholder="Search and select company..."
                   />
                 </div>
                 <div>
@@ -158,9 +188,19 @@ export default function UserDashboard() {
                 <button
                   type="submit"
                   className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow"
+                  disabled={loading}
                 >
-                  Submit
+                  {loading ? 'Verifying...' : 'Submit'}
                 </button>
+                {verification === true && (
+                  <div className="text-green-600 mt-4">Verified ✅ Badge added to your profile!</div>
+                )}
+                {verification === false && (
+                  <div className="text-red-600 mt-4">Not Verified ❌ (No badge added)</div>
+                )}
+                {error && (
+                  <div className="text-red-600 mt-4">{error}</div>
+                )}
               </form>
             </div>
           </div>

@@ -32,8 +32,16 @@ export const BadgeProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      // Placeholder endpoint; wire to backend when available
-      const res = await fetch("http://localhost:3001/badges");
+      // Get user id from localStorage (or context if available)
+      const user = JSON.parse(localStorage.getItem('auth_user'));
+      const userId = user?.id;
+      if (!userId) {
+        setAcceptedBadges([]);
+        setIncomingBadges([]);
+        setLoading(false);
+        return;
+      }
+      const res = await fetch(`http://localhost:3001/badges?user_id=${userId}`);
       if (!res.ok) throw new Error(`Failed to fetch badges: ${res.status}`);
       const data = await res.json();
 
@@ -50,17 +58,26 @@ export const BadgeProvider = ({ children }) => {
           category: b.category || "General",
         };
         if (b.status === "verified") {
-          verified.push({ ...common, dateAccepted: b.verifiedAt?.slice(0, 10) || new Date().toISOString().slice(0,10) });
+          verified.push({ ...common, dateAccepted: b.verified_at?.slice(0, 10) || new Date().toISOString().slice(0,10) });
         } else {
           pending.push({ ...common, date: new Date().toISOString().slice(0,10) });
         }
       }
 
-      // Only update if we actually got data; otherwise keep samples.
-      if (verified.length || pending.length) {
-        setAcceptedBadges(verified);
-        setIncomingBadges(pending);
+      // If user has no badges, add a default welcome badge
+      if (verified.length === 0 && pending.length === 0) {
+        verified.push({
+          id: 'welcome-badge',
+          title: 'Welcome to OfferCred',
+          description: 'Thanks for joining OfferCred! Start earning verified badges.',
+          issuer: 'OfferCred',
+          organization: 'OfferCred',
+          category: 'Welcome',
+          dateAccepted: new Date().toISOString().slice(0,10),
+        });
       }
+      setAcceptedBadges(verified);
+      setIncomingBadges(pending);
     } catch (e) {
       setError(e.message || "Unknown error");
     } finally {

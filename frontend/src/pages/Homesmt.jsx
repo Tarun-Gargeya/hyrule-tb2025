@@ -40,29 +40,29 @@ const Homesmt = () => {
   ];
 
   const stats = [
-    { number: '500K+', label: 'Happy Users' },
-    { number: '50+', label: 'Partner Lenders' },
-    { number: '98%', label: 'Approval Rate' },
-    { number: '$2B+', label: 'Credit Facilitated' }
+    { number: '10K+', label: 'Verified Opportunities' },
+    { number: '100+', label: 'Partner Companies' },
+    { number: '99%', label: 'Verification Accuracy' },
+    { number: '50K+', label: 'Student Achievements' }
   ];
 
   const testimonials = [
     {
-      name: 'Sarah Johnson',
-      role: 'Small Business Owner',
-      content: 'OfferCred helped me find the perfect business loan with amazing rates. The process was incredibly smooth!',
+      name: 'Aarav Mehta',
+      role: 'Engineering Student',
+      content: 'OfferCred gave me a verified badge for my internship. Recruiters now trust my profile more than ever!',
       rating: 5
     },
     {
-      name: 'Michael Chen',
-      role: 'Recent Graduate',
-      content: 'As someone new to credit, OfferCred made it easy to understand my options and get my first credit card.',
+      name: 'Priya Singh',
+      role: 'Campus Ambassador',
+      content: 'No more fake claims in our student group. OfferCred makes it easy to see who really got the offer.',
       rating: 5
     },
     {
-      name: 'Emily Rodriguez',
-      role: 'Freelancer',
-      content: 'The personalized offers saved me hours of research. I found exactly what I needed in minutes.',
+      name: 'Rahul Verma',
+      role: 'Recruiter',
+      content: 'I can finally filter genuine candidates with verified badges. This is a game changer for hiring.',
       rating: 5
     } 
   ];
@@ -71,35 +71,34 @@ const Homesmt = () => {
     <div className="min-h-screen bg-white">
   {/* <LandingNavbar /> */}
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-16 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Find Your Perfect
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent block">
-                Credit Offer
-              </span>
+      <section className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-24 pb-24 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-8 flex flex-col items-center text-center">
+          <div className="mb-8">
+            <span className="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-4 py-1 rounded-full mb-4 tracking-widest uppercase">OfferCred</span>
+            <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-4 leading-tight">
+              Verifying Student Opportunities<br />
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">with Trust & Tech</span>
             </h1>
-            <p className="text-xl text-gray-1000 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Fake job offers and unverifiable internships flood student communities. OfferCred ensures every opportunity is authentic, transparent, and trusted.
+            <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Many claim job offers, internships, or freelance projects on LinkedIn or campus groups without any way to verify them. This opens the door to exaggeration and false representation, creating fake clout and overshadowing genuine achievements.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
-                onClick={() => navigate('/auth')}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </button>
-            </div>
+            <p className="text-base text-gray-500 mb-8 max-w-2xl mx-auto">
+              OfferCred provides a transparent, verifiable system to validate claims, ensure credibility, and build a culture of honesty that helps recruiters identify real talent.
+            </p>
+            <button
+              onClick={() => navigate('/auth')}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-1 mx-auto"
+            >
+              Get Started Free
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </button>
           </div>
         </div>
-        
         {/* Floating Elements */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-16 h-16 bg-indigo-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-purple-200 rounded-full opacity-20 animate-pulse delay-500"></div>
+        <div className="absolute top-16 left-10 w-24 h-24 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
+        <div className="absolute top-32 right-20 w-16 h-16 bg-indigo-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-1/4 w-14 h-14 bg-purple-200 rounded-full opacity-20 animate-pulse delay-500"></div>
       </section>
 
       {/* Stats Section */}
@@ -123,10 +122,10 @@ const Homesmt = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose OfferCred?
+              Why OfferCred?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We make finding the right credit products simple, fast, and secure.
+              We make student achievements trustworthy, transparent, and verifiable for everyone.
             </p>
           </div>
           
@@ -156,7 +155,7 @@ const Homesmt = () => {
               How It Works
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Get matched with the best credit offers in three simple steps.
+              Get your achievements verified and visible in three simple steps.
             </p>
           </div>
           
@@ -166,10 +165,10 @@ const Homesmt = () => {
                 <span className="text-white text-xl font-bold">1</span>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                Share Your Profile
+                Claim Your Opportunity
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Tell us about your financial situation and credit goals. It takes just 2 minutes and won't affect your credit score.
+                Submit your job offer, internship, or freelance project for verification. No more fake claims—just real achievements.
               </p>
             </div>
             
@@ -178,10 +177,10 @@ const Homesmt = () => {
                 <span className="text-white text-xl font-bold">2</span>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                Get Matched
+                Get Verified
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Our algorithm instantly matches you with personalized offers from our network of trusted lenders.
+                Our system checks with companies and partners to verify your claim. Only genuine opportunities get the badge.
               </p>
             </div>
             
@@ -190,10 +189,10 @@ const Homesmt = () => {
                 <span className="text-white text-xl font-bold">3</span>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                Choose & Apply
+                Show Off Your Badge
               </h3>
               <p className="text-gray-600 leading-relaxed">
-                Compare your options and apply for the offer that best fits your needs. Get approved in minutes.
+                Display your verified badge on your profile. Recruiters and peers can instantly see your real, validated achievements.
               </p>
             </div>
           </div>
@@ -208,7 +207,7 @@ const Homesmt = () => {
               What Our Users Say
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Join thousands of satisfied customers who found their perfect credit match.
+              Hear from students and recruiters who trust OfferCred for real, verified opportunities.
             </p>
           </div>
           
@@ -237,11 +236,10 @@ const Homesmt = () => {
       <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Find Your Perfect Credit Match?
+            Ready to Get Verified?
           </h2>
           <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-            Join over 500,000 users who have found better credit options with OfferCred. 
-            It's free, fast, and secure.
+            Join thousands of students and recruiters building a culture of trust with OfferCred. It's free, fast, and secure.
           </p>
           <button
             onClick={() => navigate('/auth')}
@@ -265,7 +263,7 @@ const Homesmt = () => {
                 <span className="text-2xl font-bold">OfferCred</span>
               </div>
               <p className="text-gray-400 mb-6 max-w-md">
-                Your trusted partner in finding the best credit products. We connect you with personalized offers from top lenders.
+                The trusted platform for verifying student opportunities. We help you prove your achievements and build real credibility.
               </p>
               <div className="flex space-x-4">
                 <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 cursor-pointer transition-colors">

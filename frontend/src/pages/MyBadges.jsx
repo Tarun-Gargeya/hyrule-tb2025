@@ -23,6 +23,7 @@ export default function MyBadges() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  // Only use categories from real badges (no hardcoded defaults)
   const categories = useMemo(() => ["All", ...new Set((badges || []).map(badge => badge.category).filter(Boolean))], [badges]);
 
   const filteredBadges = useMemo(() => (badges || []).filter(badge => {

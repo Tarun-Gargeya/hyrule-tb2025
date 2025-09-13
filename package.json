@@ -17,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/Tarun-Gargeya/hyrule-tb2025/issues"
   },
-  "homepage": "https://github.com/Tarun-Gargeya/hyrule-tb2025#readme"
+  "homepage": "https://github.com/Tarun-Gargeya/hyrule-tb2025#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
 }
