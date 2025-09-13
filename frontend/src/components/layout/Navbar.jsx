@@ -47,7 +47,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand - Always visible, links to home */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             <Link 
               to={isAuthenticated() 
                 ? (userType === 'company' ? '/company-dashboard' : '/user-dashboard')
@@ -56,7 +56,9 @@ export default function Navbar() {
               className="text-xl font-bold text-gray-900 hover:text-blue-600"
               style={{ letterSpacing: '1px' }}
             >
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               OfferCred
+            </span>
             </Link>
           </div>
 
@@ -122,6 +124,13 @@ export default function Navbar() {
                 </Link>
               )}
             </div>
+            {/* Pricing button always last */}
+            <Link
+              to="/pricing"
+              className="px-3 py-1.5 rounded text-sm font-medium text-blue-600 border border-blue-100 hover:bg-blue-50 transition"
+            >
+              Pricing
+            </Link>
 
             {/* Search Bar - Only show when authenticated */}
             {isAuthenticated() && (

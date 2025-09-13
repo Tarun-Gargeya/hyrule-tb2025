@@ -61,6 +61,19 @@ export default function MyBadges() {
     return colors[category] || "bg-gray-100 text-gray-800";
   };
 
+  // Calculate badges earned this month
+  const badgesThisMonth = useMemo(() => {
+    if (!badges) return 0;
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    return badges.filter(badge => {
+      if (!badge.issued_at) return false;
+      const date = new Date(badge.issued_at);
+      return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+    }).length;
+  }, [badges]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
@@ -119,7 +132,7 @@ export default function MyBadges() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-2xl font-bold text-gray-900">3</p>
+                <p className="text-2xl font-bold text-gray-900">{badgesThisMonth}</p>
               </div>
             </div>
           </div>

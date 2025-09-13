@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 // import LandingNavbar from '../components/layout/LandingNavbar';
@@ -69,22 +70,17 @@ const Homesmt = () => {
 
   return (
     <div className="min-h-screen bg-white">
-  {/* <LandingNavbar /> */}
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-24 pb-24 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-28 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-8 flex flex-col items-center text-center">
-          <div className="mb-8">
-            <span className="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-4 py-1 rounded-full mb-4 tracking-widest uppercase">OfferCred</span>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-4 leading-tight">
-              Verifying Student Opportunities<br />
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">with Trust & Tech</span>
+        <div className="relative max-w-2xl mx-auto px-4 sm:px-8 flex flex-col items-center text-center">
+          <div className="mb-10">
+            <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-4 leading-tight tracking-tight drop-shadow-sm">
+              <span className="block">Show the World</span>
+              <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent text-4xl md:text-6xl font-black mt-2">You’re Verified.</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Many claim job offers, internships, or freelance projects on LinkedIn or campus groups without any way to verify them. This opens the door to exaggeration and false representation, creating fake clout and overshadowing genuine achievements.
-            </p>
-            <p className="text-base text-gray-500 mb-8 max-w-2xl mx-auto">
-              OfferCred provides a transparent, verifiable system to validate claims, ensure credibility, and build a culture of honesty that helps recruiters identify real talent.
+            <p className="text-lg text-gray-700 mb-8 max-w-xl mx-auto font-medium">
+              Get real, trusted badges for your offers and internships. No more fake claims—just proof.
             </p>
             <button
               onClick={() => navigate('/auth')}
@@ -102,20 +98,49 @@ const Homesmt = () => {
       </section>
 
       {/* Stats Section */}
+
   <section id="stats" className="py-16 bg-white border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
-              </div>
-            ))}
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Fact 1 */}
+        <div className="bg-blue-50 border-l-4 border-blue-400 rounded-xl p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <p className="text-lg text-gray-800 font-semibold mb-2">
+              A HirePro survey in India found <span className="text-blue-700 font-bold">85%</span> of job seekers have made false claims on their resumes, using templates, professional resume writers, AI tools, etc.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 mt-4">
+            <span className="text-xs text-gray-500">ABP Live</span>
+            <span className="bg-blue-200 text-blue-800 text-xs font-semibold rounded px-2 py-0.5">+2</span>
+            <span className="text-xs text-gray-500">Moneycontrol</span>
+            <span className="bg-blue-200 text-blue-800 text-xs font-semibold rounded px-2 py-0.5">+2</span>
           </div>
         </div>
-      </section>
+        {/* Fact 2 */}
+        <div className="bg-indigo-50 border-l-4 border-indigo-400 rounded-xl p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <p className="text-lg text-gray-800 font-semibold mb-2">
+              Another study found that <span className="text-indigo-700 font-bold">70%</span> of workers admit to lying on their resumes, including exaggerating job responsibilities, dates, and roles.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 mt-4">
+            <span className="text-xs text-gray-500">Forbes</span>
+          </div>
+        </div>
+        {/* Fact 3 */}
+        <div className="bg-purple-50 border-l-4 border-purple-400 rounded-xl p-6 shadow-sm flex flex-col justify-between md:col-span-2">
+          <div>
+            <p className="text-lg text-gray-800 font-semibold mb-2">
+              In India, a KPMG report said that across all levels, up to <span className="text-purple-700 font-bold">two-thirds</span> of applicants had discrepancies in their employment history.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 mt-4">
+            <span className="text-xs text-gray-500">The Economic Times</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
       {/* Features Section */}
   <section id="features" className="py-20 bg-gray-50">

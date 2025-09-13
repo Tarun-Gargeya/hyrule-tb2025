@@ -102,7 +102,11 @@ const Auth = ({ onLogin, onSignup }) => {
       if (activeTab === 'login') {
         // 🔑 LOGIN FLOW
         const result = await login(loginData.email, loginData.password);
-        
+        // Enforce correct login type
+        if (result.userType !== userType) {
+          setErrors({ general: `You are trying to log in as a ${result.userType}, but the selected tab is for ${userType}. Please switch tabs.` });
+          return;
+        }
         // Navigate to intended destination or default dashboard
         if (from) {
           console.log('🎯 Redirecting to intended destination:', from);
@@ -118,7 +122,6 @@ const Auth = ({ onLogin, onSignup }) => {
       } else {
         // 📝 SIGNUP FLOW
         const result = await signup(signupData, userType);
-        
         // Navigate to intended destination or default dashboard
         if (from) {
           console.log('🎯 Redirecting to intended destination:', from);
@@ -134,7 +137,7 @@ const Auth = ({ onLogin, onSignup }) => {
       }
     } catch (err) {
       console.error(err);
-      if (err.message.includes('Email already exists')) {
+      if (err.message && err.message.includes('Email already exists')) {
         setErrors({ email: 'Email already exists' });
       } else {
         setErrors({ general: err.message || 'Something went wrong' });
@@ -297,6 +300,11 @@ const Auth = ({ onLogin, onSignup }) => {
                   {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                 </div>
               </>
+            )}
+
+            {/* General error for login type mismatch or other errors */}
+            {errors.general && (
+              <div className="text-red-500 text-sm text-center mt-2">{errors.general}</div>
             )}
 
             {/* Signup Form */}

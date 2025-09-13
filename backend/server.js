@@ -1,5 +1,18 @@
 // POST /api/register
 // Body: { email_id, name, ... }
+const express = require("express");
+const cors = require("cors");
+const axios = require("axios");
+const { createClient } = require("@supabase/supabase-js");
+require("dotenv").config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY; // Service role key
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 app.post("/api/register", async (req, res) => {
   const { email_id, name, ...rest } = req.body;
   if (!email_id || !name) {
@@ -107,19 +120,7 @@ app.post("/api/welcome-badge", async (req, res) => {
 });
 
 
-const express = require("express");
-const cors = require("cors");
-const axios = require("axios");
-const { createClient } = require("@supabase/supabase-js");
-require("dotenv").config();
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY; // Service role key
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // POST /api/verify-student
 // Body: { studentId, companyId, organization, role, title, description, category }
@@ -198,7 +199,7 @@ app.get("/badges", async (req, res) => {
   const { user_id } = req.query;
   if (!user_id) return res.status(400).json({ error: "user_id required" });
   try {
-    let { data, error } = await supabase
+    const { data, error } = await supabase
       .from("badges")
       .select("*")
       .eq("user_id", user_id)
@@ -206,60 +207,6 @@ app.get("/badges", async (req, res) => {
     if (error) {
       console.error("Supabase error in /badges:", error);
       return res.status(500).json({ error: error.message, details: error });
-    }
-    // If no badges, add welcome badge
-    if (!data || data.length === 0) {
-      // Check for user existence
-      const { data: user, error: userError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("id", user_id)
-        .single();
-      if (userError || !user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-      // Check for existing welcome badge (shouldn't exist, but for safety)
-      const { data: existing, error: existError } = await supabase
-        .from("badges")
-        .select("id")
-        .eq("user_id", user_id)
-        .eq("title", "Welcome Badge")
-        .eq("category", "welcome")
-        .eq("organization", "hyrule-tb2025")
-        .eq("role", "Newcomer")
-        .maybeSingle();
-      if (existError) {
-        return res.status(500).json({ error: existError.message });
-      }
-      if (!existing) {
-        const { data: badge, error: badgeError } = await supabase
-          .from("badges")
-          .insert([
-            {
-              user_id: user_id,
-              title: "Welcome Badge",
-              description: "Awarded for joining the platform!",
-              organization: "hyrule-tb2025",
-              role: "Newcomer",
-              issued_at: new Date().toISOString(),
-              category: "welcome"
-            },
-          ])
-          .select()
-          .single();
-        if (badgeError) {
-          return res.status(500).json({ error: badgeError.message });
-        }
-        data = [badge];
-      } else {
-        // If somehow welcome badge exists but not in data, fetch it
-        const { data: badge } = await supabase
-          .from("badges")
-          .select("*")
-          .eq("id", existing.id)
-          .single();
-        data = badge ? [badge] : [];
-      }
     }
     return res.json(data);
   } catch (err) {

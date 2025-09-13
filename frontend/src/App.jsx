@@ -13,6 +13,7 @@ import Home from './pages/Home';
 import Homesmt from './pages/Homesmt';
 import Auth from './pages/Auth';
 import ProfileWrapper from './pages/profile/ProfileWrapper';
+import Pricing from './pages/Pricing';
 import './styles/App.css';
 
 function AppWrapper() {
@@ -56,6 +57,7 @@ function AppWrapper() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/pricing" element={<Pricing />} />
       </Routes>
     </>
   );
